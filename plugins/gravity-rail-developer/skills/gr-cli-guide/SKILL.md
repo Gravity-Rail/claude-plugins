@@ -124,7 +124,8 @@ cat config.json | gr workspaces update -w $UUID --allow-write
 | `workspaces` | Workspaces — CRUD, features, notifications, DMs, themes |
 | `workflows` | Workflows — CRUD, notes, contributors, templates |
 | `agents` | AI agents — CRUD, archive |
-| `assistants` | AI assistants — CRUD |
+| `personas` | AI personas — CRUD with model and voice configuration (formerly `assistants`) |
+| `journeys` | Multi-step member journeys — CRUD, archive, notes, membership |
 | `assignments` | Assignments — CRUD, messages, tasks, tools |
 | `data-types` | Data types and records — CRUD, field indexing |
 | `sites` | Sites, pages, menus — CRUD |
@@ -150,6 +151,9 @@ cat config.json | gr workspaces update -w $UUID --allow-write
 | `fhir-connections` | FHIR connection integrations |
 | `app-connections` | App connections |
 | `monday` | Monday.com integrations |
+| `hubspot` | HubSpot CRM integration |
+| `salesforce` | Salesforce integration |
+| `confluence` | Confluence integration |
 
 ### Platform
 
@@ -158,6 +162,7 @@ cat config.json | gr workspaces update -w $UUID --allow-write
 | `operator-groups` | Operator groups and presence |
 | `access-grants` | Access grants |
 | `supervisors` | AI supervisors |
+| `routines` | Scheduled remote-agent runs — list, run, view run history |
 | `milestones` | Milestones |
 | `custom-toolkits` | Custom toolkits and tools |
 | `mcp-servers` | MCP server connections |

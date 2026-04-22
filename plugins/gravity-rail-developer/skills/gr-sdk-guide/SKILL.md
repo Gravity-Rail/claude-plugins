@@ -17,10 +17,11 @@ yarn add @gravity-rail/sdk
 pnpm add @gravity-rail/sdk
 ```
 
-Optional peer dependency for runtime validation:
+Optional peer dependencies:
 
 ```bash
-npm install zod
+npm install zod    # runtime schema validation (@gravity-rail/sdk/schemas)
+npm install react  # only needed if you use the React integration helpers
 ```
 
 ## Quick Start
@@ -107,19 +108,23 @@ The SDK organizes 500+ methods by domain:
 | Domain | Representative Methods |
 |---|---|
 | **Workflows** | `getWorkflows`, `createWorkflow`, `getWorkflowTemplates`, `createWorkflowFromTemplate` |
-| **Assistants** | `getAssistants`, `createAssistant`, `createSupervisor` |
+| **Personas** | `listPersonas`, `getPersona`, `createPersona`, `updatePersona`, `deletePersona` |
+| **Supervisors** | `getSupervisors`, `createSupervisor`, `updateSupervisor` |
 | **Agents** | `getAgents`, `createAgent`, `archiveAgent` |
+| **Journeys** | `getJourneys`, `createJourney`, `archiveJourney`, `getJourneyMembers`, `getMemberJourneys` |
+| **Routines** | `getRoutines`, `createRoutine`, `runRoutine`, `getRoutineRuns` |
 | **Chats** | `getChats`, `getChatMessages`, `sendChatMessage`, `sendAssistantMessage`, `exportChat` |
 | **Members** | `getWorkspaceMembers`, `createWorkspaceMember`, `getMemberLabels` |
 | **Data Types** | `getDataTypes`, `createDataType`, `getDataRecords`, `createDataRecord`, `upsertDataRecord` |
-| **Events** | `getEventRules`, `createEventRule`, `createEvent`, `runEvent` |
+| **Events** | `getEventRules`, `createEventRule`, `updateEventRule`, `reorderEventRules`, `searchEventRules` |
 | **Calendars** | `getCalendars`, `createCalendarEvent`, `getAvailableSlots`, `linkCalendarToGoogle` |
 | **Files** | `getFiles`, `createFolder`, `createFile`, `generateFileUploadUrl` |
 | **Sites** | `getSites`, `createSite`, `createPage`, `crawlSite` |
 | **Communications** | `getPhoneNumbers`, `initiateCall`, `getInboxes`, `getInboxThreads` |
 | **Toolkits** | `getCustomToolkits`, `createCustomTool`, `createMcpServer`, `getMcpServerTools` |
 | **Operator Groups** | `getOperatorGroups`, `createOperatorGroup`, `getLiveOperators` |
-| **Qualifications** | `getQualifications`, `createQualification`, `assignQualification`, `submitForReview` |
+| **Qualifications** | `getQualifications`, `getQualification`, `getOrCreateQualificationForWorkflow` (mutations live on the `QualificationsApi` sub-client) |
+| **Access Grants** | `getAccessGrants`, `createAccessGrant`, `resolveAccessGrant`, `revokeAccessGrant`, `getMyReceivedGrants`, `getMyGivenGrants` |
 | **Billing** | `getApiKeys`, `createApiKey`, `getSubscriptions` |
 | **Integrations** | `getDiscordBots`, `getSlackApps`, `getFhirConnections` |
 | **Workspaces** | `getWorkspace`, `exportWorkspace`, `importWorkspace`, `createClientWorkspace` |
@@ -130,9 +135,9 @@ Full TypeScript types for every API entity:
 
 ```typescript
 import type {
-  Workspace, Member, Chat, Task, Workflow, Assistant,
+  Workspace, Member, Chat, Task, Workflow, Persona, Routine, Journey,
   DataType, DataRecord, EventRule, Calendar, Site,
-  PhoneNumber, Inbox, OperatorGroup, Qualification,
+  PhoneNumber, Inbox, OperatorGroup, Qualification, AccessGrant,
   Subscription, ApiKey, Agent, MemberRole,
 } from '@gravity-rail/sdk';
 ```
@@ -155,6 +160,14 @@ if (!result.success) {
   console.error(result.error.flatten());
 }
 ```
+
+## Subpath Exports
+
+| Subpath | Purpose |
+|---|---|
+| `@gravity-rail/sdk` | Main client, types, scopes |
+| `@gravity-rail/sdk/schemas` | Zod runtime validation schemas (requires `zod`) |
+| `@gravity-rail/sdk/internal` | Lower-level building blocks (base client, auth helpers) for advanced integrations |
 
 ## Scopes & Permissions
 
