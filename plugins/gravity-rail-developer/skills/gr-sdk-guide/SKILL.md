@@ -11,6 +11,8 @@ The `@gravity-rail/sdk` package is a TypeScript SDK for building on the Gravity 
 
 ```bash
 npm install @gravity-rail/sdk
+# Pin a release when you need reproducible builds:
+npm install @gravity-rail/sdk@0.7.2
 # or
 yarn add @gravity-rail/sdk
 # or
@@ -116,11 +118,11 @@ The SDK organizes 500+ methods by domain:
 | **Calendars** | `getCalendars`, `createCalendarEvent`, `getAvailableSlots`, `linkCalendarToGoogle` |
 | **Files** | `getFiles`, `createFolder`, `createFile`, `generateFileUploadUrl` |
 | **Sites** | `getSites`, `createSite`, `createPage`, `crawlSite` |
-| **Communications** | `getPhoneNumbers`, `initiateCall`, `getInboxes`, `getInboxThreads` |
+| **Communications** | `getPhoneNumbers`, `getPhoneNumberCalls`, `initiateCall`, `linkPhoneNumber`, `getInboxes`, `getInboxThreads` |
 | **Toolkits** | `getCustomToolkits`, `createCustomTool`, `createMcpServer`, `getMcpServerTools` |
 | **Operator Groups** | `getOperatorGroups`, `createOperatorGroup`, `getLiveOperators` |
 | **Qualifications** | `getQualifications`, `createQualification`, `assignQualification`, `submitForReview` |
-| **Billing** | `getApiKeys`, `createApiKey`, `getSubscriptions` |
+| **Billing & usage** | `getApiKeys`, `createApiKey`, `getSubscriptions`, `getAIUsageReport`, `getSMSUsageReport`, `getPhoneUsageReport`, `getVoiceUsageReport` |
 | **Integrations** | `getDiscordBots`, `getSlackApps`, `getFhirConnections` |
 | **Workspaces** | `getWorkspace`, `exportWorkspace`, `importWorkspace`, `createClientWorkspace` |
 
@@ -138,6 +140,33 @@ import type {
 ```
 
 Types are exported from the main entry point — no separate imports needed.
+
+### Phone numbers (`PhoneNumber` / `PhoneNumberResponse`)
+
+- `twilioInboundReady` — `true` when the linked provider record has a Twilio SID so inbound voice/SMS webhooks can be configured. `isMapped` only means a provider UUID is attached; PSTN may still not reach Gravity Rail when this is `false`.
+- Use `getPhoneNumberCalls` to page call history for troubleshooting (pairs with `@gravity-rail/cli` `phone-numbers calls inspect` for operators).
+
+### Usage reports (`ReportsApi`)
+
+Workspace usage methods live on `GravityRailClient` (`getAIUsageReport`, `getSMSUsageReport`, `getPhoneUsageReport`, `getVoiceUsageReport`, `getMemberUsage`). Types are exported from the main entry (e.g. `AIUsageReport`, `ModelUsageStats`).
+
+As of **0.7.2**, `ModelUsageStats` includes `chat_summary_count` (chat-summary LLM usage counted separately from per-message rows). Billing is expressed via `credits`; fields such as `total_cost`, `average_cost_per_message`, and `multiplier` were removed because the API does not return them.
+
+```typescript
+import type { AIUsageReport, ModelUsageStats, PhoneNumber } from '@gravity-rail/sdk';
+
+const report = await client.getAIUsageReport(workspaceId, {
+  start_date: '2026-05-01',
+  end_date: '2026-05-31',
+});
+const top = report.top_models[0];
+console.log(top?.chat_summary_count, top?.credits);
+
+const phone = await client.getPhoneNumber(workspaceId, phoneNumberId);
+if (!phone.twilioInboundReady) {
+  // Re-link provider phone or fix Twilio webhook setup before expecting inbound PSTN
+}
+```
 
 ## Zod Schemas
 
@@ -272,5 +301,5 @@ For the complete API reference, see the [developer documentation](https://develo
 
 ## Related
 
-- [`@gravity-rail/cli`](https://www.npmjs.com/package/@gravity-rail/cli) — Command-line interface for interactive workspace management
+- [`@gravity-rail/cli`](https://www.npmjs.com/package/@gravity-rail/cli) (0.7.2+) — Command-line interface; includes phone-number routing diagnose/simulate and `phone-numbers calls inspect`
 - [Developer Docs](https://developer.gravityrail.com) — Full API reference and guides
