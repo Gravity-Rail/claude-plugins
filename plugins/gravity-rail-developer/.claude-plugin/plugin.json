@@ -7,8 +7,8 @@
       "email": "dev@gravityrail.com",
       "url": "https://gravityrail.com"
    },
-   "homepage": "https://github.com/Gravity-Rail/gravity-team",
-   "repository": "https://github.com/Gravity-Rail/gravity-team",
+   "homepage": "https://github.com/Gravity-Rail/claude-plugins",
+   "repository": "https://github.com/Gravity-Rail/claude-plugins",
    "license": "MIT",
    "keywords": ["sdk", "cli", "api", "developer", "healthcare", "workspace"],
    "skills": "./skills"
