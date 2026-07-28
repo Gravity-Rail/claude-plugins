@@ -22,6 +22,12 @@ name: Workflow lint
 on:
   pull_request:
     branches: ['**']
+  # Also audit main directly. Without this the gate only ever sees changes
+  # that arrive by PR, so anything pushed straight to main -- or merged by a
+  # path that skips PR review -- is never audited. Cheap insurance: the same
+  # job, one extra trigger.
+  push:
+    branches: [main]
 
 permissions:
   contents: read
