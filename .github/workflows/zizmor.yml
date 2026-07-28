@@ -1,0 +1,50 @@
+name: Workflow lint
+
+# Static analysis of our own GitHub Actions workflows (zizmor). Catches
+# unpinned action references, overly broad permissions, template injection
+# and credential persistence before they reach main.
+#
+# This gate is blocking at every severity, including informational: the
+# repo was brought to zero findings when it was introduced, so anything it
+# reports is new. Known-and-accepted findings are suppressed in
+# .github/zizmor.yml with a justification, never by loosening the gate.
+#
+# The zizmor version is pinned deliberately. A floating version would let a
+# new upstream audit turn this check red on an unrelated PR; bumping it is a
+# deliberate, reviewable change.
+#
+# This is a PUBLIC repo, so `pull_request` runs from forks with a read-only
+# token and no access to secrets. That is fine — zizmor only reads workflow
+# files in the checkout and needs nothing else. Note this deliberately uses
+# `pull_request`, never `pull_request_target`, which would run fork-authored
+# code with a privileged token.
+
+on:
+  pull_request:
+    branches: ['**']
+
+permissions:
+  contents: read
+
+jobs:
+  zizmor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@6fc4b006235f201fdab3722e17240ab420d580e5 # v0.6.1
+        with:
+          version: 1.28.0
+          # Annotations rather than SARIF/code-scanning: in SARIF mode zizmor
+          # deliberately suppresses its non-zero exit codes, which would make
+          # this check non-blocking. Uploading to the security tab is free on
+          # a public repo, but a green-but-findings check is worse than a
+          # failing one, and this matches the other five repos in the rollout.
+          advanced-security: false
+          annotations: true
